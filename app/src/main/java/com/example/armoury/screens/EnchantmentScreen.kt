@@ -20,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.armoury.data.EnchantmentData
 import com.example.armoury.model.Enchantment
@@ -30,9 +29,12 @@ val Enchantment.color: Color
     get() = Color(android.graphics.Color.parseColor(this.colorHex))
 
 @Composable
-fun EnchantmentCard(enchantment: Enchantment) {
+fun EnchantmentCard(
+    enchantment: Enchantment,
+    onCardClick: () -> Unit // NEW: Parameter to handle the click
+) {
     Card(
-        onClick = { },
+        onClick = onCardClick, // NEW: Attached the callback here
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
@@ -42,15 +44,17 @@ fun EnchantmentCard(enchantment: Enchantment) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally, // Horizontal center
-            verticalArrangement = Arrangement.Center           // Vertical center
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
+            // Title
             Text(
                 text = enchantment.name,
                 style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center
             )
 
+            // Realm Tag
             Card(
                 modifier = Modifier.padding(vertical = 4.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.1f))
@@ -62,6 +66,7 @@ fun EnchantmentCard(enchantment: Enchantment) {
                 )
             }
 
+            // Description
             Text(
                 text = enchantment.description,
                 textAlign = TextAlign.Center,
@@ -69,6 +74,7 @@ fun EnchantmentCard(enchantment: Enchantment) {
                 modifier = Modifier.padding(vertical = 8.dp)
             )
 
+            // Stats and Rarity Row
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
@@ -94,16 +100,19 @@ fun EnchantmentCard(enchantment: Enchantment) {
 }
 
 @Composable
-fun EnchantmentScreen(type: String, onBack: () -> Unit) {
+fun EnchantmentScreen(
+    type: String,
+    onBack: () -> Unit,
+    onEnchantmentSelect: (Enchantment) -> Unit // NEW: Callback to send data back to ViewModel
+) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Top section with Title and Back button
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = type,
+            text = "Select $type Enchantment",
             style = MaterialTheme.typography.displaySmall,
             textAlign = TextAlign.Center
         )
@@ -121,10 +130,12 @@ fun EnchantmentScreen(type: String, onBack: () -> Unit) {
         ) {
             items(EnchantmentData.allEnchantments) { enchantment ->
                 if (enchantment.type == type) {
-                    EnchantmentCard(enchantment)
+                    EnchantmentCard(
+                        enchantment = enchantment,
+                        onCardClick = { onEnchantmentSelect(enchantment) } // NEW: Triggering the selection
+                    )
                 }
             }
         }
     }
 }
-
